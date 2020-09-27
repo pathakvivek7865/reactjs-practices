@@ -1,0 +1,157 @@
+---
+title: "Color Mode"
+package: "@chakra-ui/color-mode"
+description: Working with color mode (light and dark mode) in Chakra UI
+---
+
+When you use the `ChakraProvider` at the root of your app, you can automatically
+use color mode in your apps.
+
+By default, most of Chakra's component are dark mode compatible. To handle color
+mode manually in your application, use the `useColorMode` or `useColorModeValue`
+hooks.
+
+> **Tip:** Chakra stores the color mode in `localStorage` and uses CSS variables
+> to ensure the color mode is persistent.
+
+## useColorMode
+
+`useColorMode` is a React hook that gives you access to the current color mode,
+and a function to toggle the color mode.
+
+```jsx
+function Example() {
+  const { colorMode, toggleColorMode } = useColorMode()
+  return (
+    <header>
+      <Button onClick={toggleColorMode}>
+        Toggle {colorMode === "light" ? "Dark" : "Light"}
+      </Button>
+    </header>
+  )
+}
+```
+
+Calling `toggleColorMode` anywhere in your app tree toggles the color mode.
+
+## useColorModeValue
+
+`useColorModeValue` is a React hook used to change any value or style based on
+the color mode. It takes 2 arguments: the value in light mode, and the value in
+dark mode.
+
+```jsx live=false
+// Here's the signature
+const value = useColorModeValue(lightModeValue, darkModeValue)
+```
+
+Here's an example that changes the `background-color` and `color` using the
+`useColorModeValue` hook.
+
+> Click the **Toggle Mode** button to see it in action.
+
+```jsx
+function StyleColorMode() {
+  const { colorMode, toggleColorMode } = useColorMode()
+
+  const bg = useColorModeValue("red.500", "red.200")
+  const color = useColorModeValue("white", "gray.800")
+
+  return (
+    <>
+      <Box mb={4} bg={bg} color={color}>
+        This box's style will change based on the color mode.
+      </Box>
+      <Button size="sm" onClick={toggleColorMode}>
+        Toggle Mode
+      </Button>
+    </>
+  )
+}
+```
+
+## Forcing a specific mode
+
+In some occasions, you might want Chakra components to look the same in both
+light and dark modes. To achieve this, wrap the component in a `LightMode` or
+`DarkMode` component. Doing this will override the global `colorMode`.
+
+> Click the **"Toggle Mode"** button to see it in action.
+
+```jsx
+function Example() {
+  const { colorMode, toggleColorMode } = useColorMode()
+
+  return (
+    <HStack>
+      <LightMode>
+        <Button size="sm" colorScheme="blue">
+          Light Mode Always
+        </Button>
+      </LightMode>
+
+      <DarkMode>
+        <Button size="sm" colorScheme="blue">
+          Dark Mode Always
+        </Button>
+      </DarkMode>
+
+      <Button size="sm" colorScheme="blue" onClick={toggleColorMode}>
+        Toggle Mode
+      </Button>
+    </HStack>
+  )
+}
+```
+
+## Change color mode behavior
+
+Starting from v1.0, you can now set default color mode or use default OS color
+mode.
+
+To support this, pass the `initialValue` prop to `ColorModeScript` component and
+set it's value to `light`, `dark` or `system`.
+
+By default the initial color mode is `light`. All you need to do is add
+`ColorModeScript` script as the first child of `body`.
+
+### With Next.js
+
+Here's how to add it for Next.js:
+
+```jsx live=false
+// pages/_document.js
+import { ColorModeScript } from "@chakra-ui/core"
+
+export default class Document extends NextDocument {
+  static async getInitialProps(ctx) {
+    const initialProps = await NextDocument.getInitialProps(ctx)
+    return { ...initialProps }
+  }
+
+  render() {
+    return (
+      <Html>
+        <Head />
+        <body>
+          {/* 👇 Here's the script */}
+          <ColorModeScript defaultMode="light" />
+          <Main />
+          <NextScript />
+        </body>
+      </Html>
+    )
+  }
+}
+```
+
+### With Gatsby
+
+```jsx live=false
+// gatsby-ssr.js
+export const onRenderBody = ({ setPreBodyComponents }) => {
+  setPreBodyComponents([
+    <ColorModeScript defaultMode="light" key="chakra-ui-no-flash" />,
+  ])
+}
+```

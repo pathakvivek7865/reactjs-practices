@@ -1,0 +1,67 @@
+---
+title: Advanced Theming
+description: Documentation for making advanced modifications to themes.
+---
+
+Now that you understand how to use Chakra UI theming API. Let's take a step
+further and see if we can adapt the button to color mode.
+
+When defining the styles for the `sizes` or `variants`, you can either pass a
+style object or a function that returns a style object.
+
+```tsx live=false
+type StyleInterpolation =
+  | { [part: string]: StyleObject }
+  | ((options: Options) => { [part: string]: StyleObject })
+
+interface Options {
+  theme: Theme
+  colorMode: "light" | "dark"
+  colorScheme: string
+}
+
+type styleConfig = {
+  baseStyle: StyleInterpolation
+  sizes: { [size: string]: StyleInterpolation }
+  variants: { [variant: string]: StyleInterpolation }
+}
+```
+
+## Using color mode
+
+Here's an example of how to create a simple badge that changes its background
+based on color mode.
+
+```jsx live=false
+// theme.js
+import theme from "@chakra-ui/theme"
+import { merge } from "@chakra-ui/utils"
+
+const overrides = {
+  components: {
+    MyBadge: {
+      baseStyle: ({ colorMode }) => ({
+        bg: colorMode === "dark" ? "green.300" : "green.500",
+        color: colorMode === "dark" ? "gray.800" : "white",
+        textTransform: "uppercase",
+        fontWeight: "semibold",
+        letterSpacing: "0.02em",
+        padding: "4px",
+        borderRadius: "2px",
+        fontSize: "12px",
+      }),
+    },
+  },
+}
+
+export default merge(theme, overrides)
+
+// MyBadge.js
+function MyBadge(props) {
+  const styles = useStyleConfig("MyBadge")
+  return <Box as="span" sx={styles} {...props} />
+}
+
+// somewhere-else.js
+render(<MyBadge>I am a custom badge</MyBadge>)
+```
